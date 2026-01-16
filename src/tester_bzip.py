@@ -34,8 +34,8 @@ if __name__ == "__main__":
     decompression_end = time.time()
     print("Finished decompression, elapsed time:", decompression_end - decompression_start)
 
-    decompressedFile = open("decompressed.txt", "w")
-    decompressedFile.write(decoded.decode())
+    decompressedFile = open("decompressed.txt", "wb")
+    decompressedFile.write(decoded)
     result = filecmp.cmp(path, "decompressed.txt", False)
     if result:
         print("Compression and decompression successfully")

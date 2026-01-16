@@ -40,7 +40,7 @@ def compressione(file_name: str, secret_key: str, mode: int):
         # Creo il dizionario condiviso
         manager = multiprocessing.Manager()
         return_dict = manager.dict()
-        # Creo l'indice e i processi
+        # Creo l'indice e i processi 
         j=0
         process_list = []
         for i in range(0, len(stringInput),block_lenght):

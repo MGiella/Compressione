@@ -111,6 +111,12 @@ def printArr(arr, n):
 		
 	print()
 
+
+
+def buildSuffixArrayDC3(txt, n, key):
+	pass
+
+
 # Driver code
 if __name__ == "__main__":
 	
