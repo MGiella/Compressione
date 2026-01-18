@@ -21,6 +21,24 @@ def getListSecretSort(alfabeto, key):
     #print("ALFABETO:", temp_list, "CHIAVE:", key)
     return temp_list
 
+def counting_sort(indices, s, offset, n, K):
+    # K deve essere il valore massimo possibile in s
+    count = [0] * (K + 1)
+    for i in indices:
+        # Se l'indice i + offset è fuori da s, consideriamo il valore 0 (padding)
+        val = s[i + offset] if (i + offset) < len(s) else 0
+        count[val] += 1
+    
+    for i in range(1, K + 1):
+        count[i] += count[i - 1]
+    
+    res = [0] * len(indices)
+    for i in reversed(indices):
+        val = s[i + offset] if (i + offset) < len(s) else 0
+        count[val] -= 1
+        res[count[val]] = i
+    return res
+
 if __name__ == "__main__":
 
     input = "Destiny is mine"
