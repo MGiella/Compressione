@@ -112,10 +112,95 @@ def printArr(arr, n):
 	print()
 
 
-
 def buildSuffixArrayDC3(txt, n, key):
-	pass
+    # 1. Recupero l'alfabeto e il mapping segreto
+    alfabeto = sorted(set(txt))
+    remap_dict = customSort.getSecretSort(alfabeto, key)
+    
+    # 2. Trasformo la stringa in interi positivi (importante: >= 1)
+    # Lo 0 è riservato al padding interno di DC3
+    s = [remap_dict[c] + 1 for c in txt]
+    
+    # 3. Eseguo l'algoritmo DC3
+    return dc3(s, n, max(s) if s else 0)
 
+def dc3(s, n, K):
+    if n == 0: return []
+    if n == 1: return [0]
+
+    # Padding di tre zeri per gestire l'accesso alle triplette (i, i+1, i+2)
+    s_pad = s + [0, 0, 0]
+
+    # 1. Definizione degli indici per i gruppi S12 (i % 3 != 0)
+    # Se n % 3 == 1, aggiungiamo un indice fittizio 'n' per bilanciare le triplette
+    s12 = [i for i in range(n + (1 if n % 3 == 1 else 0)) if i % 3 != 0]
+
+    # 2. Ordinamento iniziale delle triplette
+    # Usiamo sort() di Python che è stabile
+    s12.sort(key=lambda i: (s_pad[i], s_pad[i+1], s_pad[i+2]))
+
+    # 3. Assegnazione dei nomi (naming)
+    # Se due triplette sono uguali, ricevono lo stesso nome (rango)
+    names = [0] * (n + 3)
+    name = 0
+    last_triplet = (-1, -1, -1)
+    for i in s12:
+        if (s_pad[i], s_pad[i+1], s_pad[i+2]) != last_triplet:
+            name += 1
+            last_triplet = (s_pad[i], s_pad[i+1], s_pad[i+2])
+        names[i] = name
+
+    # 4. Controllo ricorsione
+    if name < len(s12):
+        # Se ci sono nomi duplicati, dobbiamo risolvere l'ordine ricorsivamente
+        s1_idx = [i for i in range(n + (1 if n % 3 == 1 else 0)) if i % 3 == 1]
+        s2_idx = [i for i in range(n + (1 if n % 3 == 1 else 0)) if i % 3 == 2]
+        
+        # Stringa ridotta: concatenazione dei nomi dei suffissi mod 1 e mod 2
+        s_next = [names[i] for i in s1_idx] + [names[i] for i in s2_idx]
+        sa_next = dc3(s_next, len(s_next), name)
+        
+        # Ri-mappiamo i ranghi ottenuti dalla ricorsione nel vettore names
+        s12_map = s1_idx + s2_idx
+        for i, pos_in_s_next in enumerate(sa_next):
+            names[s12_map[pos_in_s_next]] = i + 1
+        
+        # Costruiamo S12 ordinato (filtrando l'indice dummy n)
+        s12_sorted = [s12_map[p] for p in sa_next if s12_map[p] < n]
+    else:
+        # Se i nomi sono già tutti distinti, S12 è già ordinato
+        s12_sorted = [i for i in s12 if i < n]
+
+    # 5. Ordinamento del gruppo S0 (i % 3 == 0)
+    # Un suffisso i mod 0 è determinato dalla coppia (carattere attuale, rango del suffisso i+1)
+    # Nota: names[i+1] è sempre disponibile perché i+1 è mod 1 (parte di S12)
+    s0 = [i for i in range(n) if i % 3 == 0]
+    s0.sort(key=lambda i: (s_pad[i], names[i+1]))
+
+    # 6. Merge finale tra S12_sorted e S0
+    res = []
+    i12, i0 = 0, 0
+    while i12 < len(s12_sorted) and i0 < len(s0):
+        p12, p0 = s12_sorted[i12], s0[i0]
+        
+        # Confronto basato sulla tecnica Difference Cover modulo 3
+        if p12 % 3 == 1:
+            # Caso mod 1: basta un confronto (s[i], rank[i+1])
+            is_less = (s_pad[p12], names[p12+1]) < (s_pad[p0], names[p0+1])
+        else:
+            # Caso mod 2: serve un confronto (s[i], s[i+1], rank[i+2])
+            is_less = (s_pad[p12], s_pad[p12+1], names[p12+2]) < (s_pad[p0], s_pad[p0+1], names[p0+2])
+        
+        if is_less:
+            res.append(p12)
+            i12 += 1
+        else:
+            res.append(p0)
+            i0 += 1
+            
+    res.extend(s12_sorted[i12:])
+    res.extend(s0[i0:])
+    return res
 
 # Driver code
 if __name__ == "__main__":
