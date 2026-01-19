@@ -112,48 +112,69 @@ def printArr(arr, n):
 	print()
 
 
-def buildSuffixArrayDC3(txt, n, key):
-    # 1. Recupero l'alfabeto (caratteri unici)
-    alfabeto = sorted(set(txt))
-    
-    # 2. Ottengo il mapping segreto (carattere -> float casuale)
-    remap_dict_floats = customSort.getSecretSort(alfabeto, key)
-    
-    # 3. TRASFORMA I FLOAT IN RANGHI INTERI (Fondamentale per il Counting Sort)
-    # Ordiniamo i caratteri dell'alfabeto in base al loro valore float segreto
-    alfabeto_ordinato_segreto = sorted(alfabeto, key=lambda c: remap_dict_floats[c])
-    
-    # Creiamo un nuovo dizionario che mappa ogni carattere al suo rango intero (da 1 a A)
-    rank_dict = {char: i + 1 for i, char in enumerate(alfabeto_ordinato_segreto)}
-    
-    # 4. Trasformo la stringa in interi positivi
-    # Ora s conterrà solo interi: 1, 2, 3...
-    s = [rank_dict[c] for c in txt]
-    
-    # 5. Eseguo l'algoritmo DC3
-    # Ora K sarà un intero (il numero di caratteri distinti)
-    K = len(alfabeto)
-    return dc3(s, n, K)
+def buildSuffixArrayDC3(txt, key):
+	# 1. Recupero l'alfabeto (caratteri unici)
+	alfabeto = sorted(set(txt))
+	
+	# 2. Ottengo il mapping segreto (carattere -> float casuale)
+	remap_dict_floats = customSort.getSecretSort(alfabeto, key)
+	
+	# 3. TRASFORMA I FLOAT IN RANGHI INTERI (Fondamentale per il Counting Sort)
 
-def dc3(s, n, K):
+	# Ordiniamo i caratteri dell'alfabeto in base al loro valore float segreto
+	alfabeto_ordinato_segreto = sorted(alfabeto, key=lambda c: remap_dict_floats[c])
+	
+	# Creiamo un nuovo dizionario che mappa ogni carattere al suo rango intero
+	rank_dict = {char: i + 1 for i, char in enumerate(alfabeto_ordinato_segreto)}
+	
+	# 4. Trasformo la stringa in interi positivi
+	# Ora s conterrà solo interi: 1, 2, 3...
+	# s è il txt trasformato in interi secondo il mapping segreto
+	s = [rank_dict[c] for c in txt]
+	
+	# 5. Eseguo l'algoritmo DC3
+	# Ora max sarà un intero (il numero di caratteri distinti)
+	max = len(alfabeto)
+	print(rank_dict, '\n\n')
+	return dc3(s, len(s), max)
+
+def dc3(s, n, max):
+	# Caso base
 	if n == 0: return []
 	if n == 1: return [0]
 
-	# Padding di tre zeri per gestire l'accesso alle triplette (i, i+1, i+2)
+	# aggiungo 3 zeri afffinchè ci sia almeno una tripletta completa
 	s_pad = s + [0, 0, 0]
 
 	# 1. Definizione degli indici per i gruppi S12 (i % 3 != 0)
-	# Se n % 3 == 1, aggiungiamo un indice fittizio 'n' per bilanciare le triplette
-	s12 = [i for i in range(n + (1 if n % 3 == 1 else 0)) if i % 3 != 0]
+	# Se n % 3 == 1, aggiungiamo un indice fittizio 'n' per effettuare il confronto con s0 peché c'è bisogno di un valore in più
+	# s12 = [i for i in range(n + (1 if n % 3 == 1 else 0)) if i % 3 != 0]
+
+	s12 = []
+	for i in range(n + (1 if n % 3 == 1 else 0)):
+		if i % 3 != 0:
+			s12.append(i)
 
 	# 2. Ordinamento iniziale delle triplette
-	# Usiamo sort() di Python che è stabile
-	#s12.sort(key=lambda i: (s_pad[i], s_pad[i+1], s_pad[i+2]))
 
-	s12 = customSort.counting_sort(s12, s_pad, 2, n, K) # Terzo elemento
-	s12 = customSort.counting_sort(s12, s_pad, 1, n, K) # Secondo elemento
-	s12 = customSort.counting_sort(s12, s_pad, 0, n, K) # Primo elemento
+	for i in s12:
+		print(s_pad[i], s_pad[i+1], s_pad[i+2])
 
+	print('prima stampa\n', s12, '\n\n')
+	s12 = customSort.counting_sort(s12, s_pad, 2, max) # Terzo elemento
+
+	for i in s12:
+		print(s_pad[i], s_pad[i+1], s_pad[i+2])
+	print('seconda stampa\n', s12, '\n\n')
+	s12 = customSort.counting_sort(s12, s_pad, 1, max) # Secondo elemento
+
+	for i in s12:
+		print(s_pad[i], s_pad[i+1], s_pad[i+2])
+	print('terza stampa\n', s12, '\n\n')
+	s12 = customSort.counting_sort(s12, s_pad, 0, max) # Primo elemento
+	for i in s12:
+		print(s_pad[i], s_pad[i+1], s_pad[i+2])
+	print('quarta stampa\n', s12, '\n\n')
 	# 3. Assegnazione dei nomi (naming)
 	# Se due triplette sono uguali, ricevono lo stesso nome (rango)
 	names = [0] * (n + 3)
@@ -192,10 +213,9 @@ def dc3(s, n, K):
 	# Un suffisso i mod 0 è determinato dalla coppia (carattere attuale, rango del suffisso i+1)
 	# Nota: names[i+1] è sempre disponibile perché i+1 è mod 1 (parte di S12)
 	s0 = [i for i in range(n) if i % 3 == 0]
-	#s0.sort(key=lambda i: (s_pad[i], names[i+1]))
 
-	s0 = customSort.counting_sort(s0, names, 1, n, name) # Ordina in base al rango del successivo
-	s0 = customSort.counting_sort(s0, s_pad, 0, n, K) # Ordina in base al carattere attuale
+	s0 = customSort.counting_sort(s0, names, 1, name) # Ordina in base al rango del successivo
+	s0 = customSort.counting_sort(s0, s_pad, 0, max) # Ordina in base al carattere attuale
 
 	# 6. Merge finale tra S12_sorted e S0
 	res = []

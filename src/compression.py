@@ -57,7 +57,7 @@ def compressione(file_name: str, secret_key: str, mode: int):
     bFile.write(str(block_lenght))
     bFile.close()
 
-    if using_blocks and len(stringInput) > block_lenght:
+    if using_blocks and len(stringInput) > nproc * 10:
         print("block mode")
         time_start = time.time()
         num_tasks = len(stringInput) // block_lenght

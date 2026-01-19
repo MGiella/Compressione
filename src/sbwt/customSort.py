@@ -21,15 +21,15 @@ def getListSecretSort(alfabeto, key):
     #print("ALFABETO:", temp_list, "CHIAVE:", key)
     return temp_list
 
-def counting_sort(indices, s, offset, n, K):
-    # K deve essere il valore massimo possibile in s
-    count = [0] * (K + 1)
+def counting_sort(indices, s, offset, max):
+    # max deve essere il valore massimo possibile in s
+    count = [0] * (max + 1) #array di appoggio
     for i in indices:
         # Se l'indice i + offset è fuori da s, consideriamo il valore 0 (padding)
         val = s[i + offset] if (i + offset) < len(s) else 0
         count[val] += 1
-    
-    for i in range(1, K + 1):
+
+    for i in range(1, max + 1):
         count[i] += count[i - 1]
     
     res = [0] * len(indices)

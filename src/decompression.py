@@ -85,10 +85,12 @@ def decompressione(secret_key: str, mode: int):
     bwtDecodedString = []   
     rFile = open("TestFiles/Output/rfile.txt", "r")
     r = rFile.readline()
-    rFile.close()   
-    if using_blocks and len(mtfDecodedString) > block_lenght:
+    rFile.close()
+    
+    nproc = multiprocessing.cpu_count()
+    if using_blocks and len(mtfDecodedString) > nproc * 10:
         print("block mode")
-        nproc = multiprocessing.cpu_count()
+        
         tasks = []
         num_tasks = len(mtfDecodedString) // block_lenght
         chunksize = max(1, num_tasks // (nproc * 2)) #Definisco la dimensione dei chunk per ogni processo 

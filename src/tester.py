@@ -5,8 +5,8 @@ import filecmp
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
-        print("Missing arguments, proceeding with default ones\nname=alice29.txt, key=Chiave Segreta and mode = 0" )
-        file_name = "alice29.txt"
+        print("Missing arguments, proceeding with default ones\nname=test2.txt, key=Chiave Segreta and mode = 0" )
+        file_name = "test2.txt"
         secret_key = "Chiave segreta"
         mode = 0
     else:

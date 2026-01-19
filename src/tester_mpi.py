@@ -1,5 +1,5 @@
-import compression_improved as compression
-import decompression_improved as decompression
+import compression_mpi as compression
+import decompression_mpi as decompression
 import sys
 import filecmp
 from mpi4py import MPI
@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
 	if len(sys.argv) < 4:
 		if not rank: print("Missing arguments, proceeding with default ones\nname=alice29.txt, key=Chiave Segreta and mode = 0" )
-		file_name = "manual.ps"
+		file_name = "alice29.txt"
 		secret_key = "Chiave segreta"
 		mode = 0
 	else:
